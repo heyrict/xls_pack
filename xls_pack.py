@@ -124,7 +124,7 @@ def to_excel(df,filename="output.xls",key=["姓名","学号"]):
     return
 
 
-def merge_to_metal(df,metdata="metal_data\\metal.xlsx",how='left',
+def merge_to_meta(df,metdata="meta_data\\meta.xlsx",how='left',
                    key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
     """
     merge and compare a DataFrame to a database.
@@ -135,7 +135,7 @@ def merge_to_metal(df,metdata="metal_data\\metal.xlsx",how='left',
        df : pandas.core.frame.DataFrame
            -- the DataFrame object to get merged.
        metdata : string
-           -- the path of metal data, default "metal_data\\metal.xlsx".
+           -- the path of meta data, default "meta_data\\meta.xlsx".
        how : string
            -- parameter used by pandas.merge implying the merge method,
                default 'left'.
@@ -159,10 +159,10 @@ def merge_to_metal(df,metdata="metal_data\\metal.xlsx",how='left',
 
 
 def total_process(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
-                  metdata="metal_data\\metal.xlsx",output="output.xls",
+                  metdata="meta_data\\meta.xlsx",output="output.xls",
                   match=False,inputfolder="input\\"):
     """
-    a packed function for get several excel files merged to one metal data.
+    a packed function for get several excel files merged to one meta data.
 
     arguments:
        lpath : list of string(s)
@@ -178,11 +178,11 @@ def total_process(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default [].
        metdata : string
-           -- the path of metal data, default "metal_data\\metal.xlsx".
+           -- the path of meta data, default "meta_data\\meta.xlsx".
        output : string
            -- name of the output file, default "output.xls"
        match : bool
-           -- whether to match the given files with the metal data, default False.
+           -- whether to match the given files with the meta data, default False.
        inputfolder : string
            -- the directory of lpath, default "input\\".
               please set it to "" if lpath has drive letter.
@@ -196,6 +196,6 @@ def total_process(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[
     ip = str(inputfolder)
     
     df = join_list(lp,key=k,keyformat=kf,subkey=sk,inputfolder=ip)
-    df = merge_to_metal(df,metdata=mt,how=('left' if match else 'outer'),
+    df = merge_to_meta(df,metdata=mt,how=('left' if match else 'outer'),
                         key=k,keyformat=kf,subkey=sk)
     to_excel(df,filename=op,key=k)

@@ -21,7 +21,7 @@ def main1(l):
 
 def main2(l):
     print("Step 2: Merge with \"学号\" column only.\n")
-    total_process(l,key=['学号'],keyformat=['int'],match=True)
+    total_process(l,key=['学号'],keyformat=['int'],subkey=['姓名'],match=True,output="整合表格")
     print("Succeeded!")
 
 
