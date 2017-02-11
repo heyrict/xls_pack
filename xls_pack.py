@@ -1,9 +1,9 @@
 """
 
 A package to process minor problems in EXCEL documents of student
-attendences in Nanjing Medical University                --by Xie
+attendences in Nanjing Medical University                --by heyrict
 
-MAKE SURE YOU HAVE INSTALLED 'PANDAS' BEFORE YOU USE THIS PACKAGE!!!
+MAKE SURE YOU HAVE INSTALLED 'PANDAS' BEFORE YOU USE THIS PACKAGE.
 """
 
 import os
@@ -12,6 +12,9 @@ import numpy as np
 from pandas import DataFrame, Series
 
 def __stdiz__(stno,typ):
+    """
+    return a normalized data with a special type.
+    """
     if typ == "int":
         if type(stno)!=int:
             x = stno.strip()
@@ -20,22 +23,29 @@ def __stdiz__(stno,typ):
             return int(x)
     if typ == "str":
         return str(stno.strip())
+    if typ == "float":
+        return float(stno)
     return stno
 
 
 def __read__(filepath,key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
     """
     read a xls(x) file in filepath and return a pandas.DataFrame object
-    with its column name processed
+    with its column name normalized
 
-    xls(x) -> pandas.core.frame.DataFrame
+    path of a xls(x) file -> pandas.core.frame.DataFrame
 
     arguments:
        filepath : string
-       key : string
+           -- path of the excel file to read.
+       key : list of string(s)
            -- the shared key of the file(s), which will appear in the merged
-              excel file, default ['学号'].
-       subkey : a list of string(s)
+              excel file, default ['学号','姓名'].
+       keyformat : list of string(s)
+           -- the type of key, default ['int','str'].
+               options:
+                   'str', 'int', 'float'
+       subkey : list of string(s)
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default []
     """
@@ -63,11 +73,26 @@ def __read__(filepath,key=['学号','姓名'],keyformat=['int','str'],subkey=[])
 def join_list(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
               inputfolder="input\\"):
     """
-    process a list of xls(x) files and merge them into a new xls file
+    merge a list of xls(x) into a new xls file.
 
+    path list of xls(x) files -> pandas.core.frame.DataFrame
+    
     arguments:
        lpath : list of string(s)
-       out : string -- the name of the output file
+           -- list of excel file(s) to merge.
+       key : list of string(s)
+           -- the shared key of the file(s), which will appear in the merged
+              excel file, default ['学号','姓名'].
+       keyformat : list of string(s)
+           -- the type of key, default ['int','str'].
+               options:
+                   'str', 'int', 'float'
+       subkey : list of string(s)
+           -- the shared subkey of the file(s), which will not appear in the
+           merged excel file, default [].
+       inputfolder : string
+           -- the directory of lpath, default "input\\".
+              please set it to "" if lpath has drive letter.
     """
     
     
@@ -78,7 +103,18 @@ def join_list(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
     return d
 
 
-def to_excel(df,filename="output.xls",key=["姓名","学号"]):
+def to_excel(df,filename="output.xls",key=["姓名","学号"]): 
+    """
+    output a DataFrame with a given name.
+
+    arguments:
+       df : pandas.core.frame.DataFrame
+           -- the DataFrame object to output.
+       filename : string
+           -- name of the output file, default "output.xls"
+       key : list of string(s)
+           -- keys to sort by, default ["姓名","学号"].
+    """
     out = str(filename)
     if out[-4:] not in ['.xls','xlsx']:
         out = out + '.xls'
@@ -90,7 +126,30 @@ def to_excel(df,filename="output.xls",key=["姓名","学号"]):
 
 def merge_to_metal(df,metdata="metal_data\\metal.xlsx",how='left',
                    key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
+    """
+    merge and compare a DataFrame to a database.
 
+    pandas.core.frame.DataFrame -> pandas.core.frame.DataFrame
+    
+    arguments:
+       df : pandas.core.frame.DataFrame
+           -- the DataFrame object to get merged.
+       metdata : string
+           -- the path of metal data, default "metal_data\\metal.xlsx".
+       how : string
+           -- parameter used by pandas.merge implying the merge method,
+               default 'left'.
+       key : list of string(s)
+           -- the shared key of the file(s), which will appear in the merged
+              excel file, default ['学号','姓名'].
+       keyformat : list of string(s)
+           -- the type of key, default ['int','str'].
+               options:
+                   'str', 'int', 'float'
+       subkey : list of string(s)
+           -- the shared subkey of the file(s), which will not appear in the
+           merged excel file, default [].
+    """
     mt = pd.read_excel(metdata,names=key+subkey)
     for i,j in zip(key,keyformat):
         mt[i] = mt[i].apply(lambda x:__stdiz__(x,j))
@@ -102,6 +161,32 @@ def merge_to_metal(df,metdata="metal_data\\metal.xlsx",how='left',
 def total_process(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
                   metdata="metal_data\\metal.xlsx",output="output.xls",
                   match=False,inputfolder="input\\"):
+    """
+    a packed function for get several excel files merged to one metal data.
+
+    arguments:
+       lpath : list of string(s)
+           -- list of excel file(s) to merge.
+       key : list of string(s)
+           -- the shared key of the file(s), which will appear in the merged
+              excel file, default ['学号','姓名'].
+       keyformat : list of string(s)
+           -- the type of key, default ['int','str'].
+               options:
+                   'str', 'int', 'float'
+       subkey : list of string(s)
+           -- the shared subkey of the file(s), which will not appear in the
+           merged excel file, default [].
+       metdata : string
+           -- the path of metal data, default "metal_data\\metal.xlsx".
+       output : string
+           -- name of the output file, default "output.xls"
+       match : bool
+           -- whether to match the given files with the metal data, default False.
+       inputfolder : string
+           -- the directory of lpath, default "input\\".
+              please set it to "" if lpath has drive letter.
+    """
     lp = list(lpath)
     k = list(key)
     kf = list(keyformat)
