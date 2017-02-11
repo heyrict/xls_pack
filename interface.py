@@ -1,6 +1,6 @@
 import sys, os
-sys.path.append('xls_process_3.py')
-from xls_process_3 import *
+sys.path.append('xls_pack.py')
+from xls_pack import *
 import pandas as pd
 
 def fetchfiles(folder="\\input"):
@@ -15,20 +15,13 @@ def fetchfiles(folder="\\input"):
     
 def main1(l):
     print("Step 1: Merge with \"姓名\",\"学号\" columns.\n")
-    
-    to_excel(merge_to_metal(join_list(list(l)),how="outer"),filename="排重表格")
-
+    total_process(l,output="排重表格")
     print("Succeeded!")
 
 
 def main2(l):
     print("Step 2: Merge with \"学号\" column only.\n")
-
-    to_excel(merge_to_metal(join_list(list(l),key=['学号'],
-                                     keyformat=['int'],label=['姓名']),
-                           key=['学号'],keyformat=['int'],subkey=['姓名'],
-                           how="outer"),filename="生成表格")
-
+    total_process(l,key=['学号'],keyformat=['int'],match=True)
     print("Succeeded!")
 
 
