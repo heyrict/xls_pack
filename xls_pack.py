@@ -28,7 +28,8 @@ def __stdiz__(stno,typ):
     return stno
 
 
-def __read__(filepath,key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
+def __read__(filepath,inputfolder="",key=['学号','姓名'],
+             keyformat=['int','str'],subkey=[]):
     """
     read a xls(x) file in filepath and return a pandas.DataFrame object
     with its column name normalized
@@ -49,19 +50,22 @@ def __read__(filepath,key=['学号','姓名'],keyformat=['int','str'],subkey=[])
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default []
     """
-    filepath = str(filepath)
-    df = pd.read_excel(filepath)
+    filename = filepath[:-4] if filepath[-4:]==".xls" else filepath[:-5]
+    fp = inputfolder + filepath
+    df = pd.read_excel(fp)
     df.index = range(len(df))
+
+
 
     for k in key+subkey:
         if k not in df.columns:
-            l = key+subkey+[filepath]
-            df = pd.read_excel(filepath,names=l)
-            df[filepath] = df[filepath].fillna(1)
+            l = key+subkey+[filename]
+            df = pd.read_excel(fp,names=l)
+            df[filename] = df[filename].fillna(1)
             break
     if len(df.columns) == len(key+subkey):
-        df = DataFrame(df,columns=list(df.columns)+[filepath])
-        df[filepath] = df[filepath].fillna(1)
+        df = DataFrame(df,columns=list(df.columns)+[filename])
+        df[filename] = df[filename].fillna(1)
     for i,j in zip(key,keyformat):
         df[i] = df[i].apply(lambda x:__stdiz__(x,j))
 
@@ -96,10 +100,11 @@ def join_list(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
     """
     
     
-    d = __read__(str(inputfolder)+str(lpath[0]),key=key,subkey=subkey)
+    d = __read__(str(lpath[0]),inputfolder=str(inputfolder),key=key,subkey=subkey)
     for i in lpath[1:]:
-        d = pd.merge(d,__read__(str(inputfolder)+str(i),key=key,keyformat=keyformat,
+        d = pd.merge(d,__read__(str(i),inputfolder=str(inputfolder),key=key,keyformat=keyformat,
                                 subkey=subkey),on=key,how='outer')
+    d.sort_index(axis=1)
     return d
 
 
