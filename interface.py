@@ -1,3 +1,4 @@
+print("Now initializing ... please wait ...")
 import sys, os
 sys.path.append('xls_pack.py')
 from xls_pack import *
@@ -16,13 +17,13 @@ def fetchfiles(folder="\\input"):
 def main1(l):
     print("Step 1: Merge with \"姓名\",\"学号\" columns.\n")
     total_process(l,output="排重表格")
-    print("Succeeded!")
+    print("Succeeded!\n\n")
 
 
 def main2(l):
     print("Step 2: Merge with \"学号\" column only.\n")
     total_process(l,key=['学号'],keyformat=['int'],subkey=['姓名'],match=True,output="整合表格")
-    print("Succeeded!")
+    print("Succeeded!\n\n")
 
 
 def main():
