@@ -28,6 +28,14 @@ def __stdiz__(stno,typ):
     return stno
 
 
+def __getnamefrompath__(path):
+    """
+    get the name of .xls(x) files.
+    """
+    path = str(path)
+    return path[:-4] if path[-4:]==".xls" else path[:-5]
+
+
 def __read__(filepath,inputfolder="",key=['学号','姓名'],
              keyformat=['int','str'],subkey=[]):
     """
@@ -50,7 +58,7 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default []
     """
-    filename = filepath[:-4] if filepath[-4:]==".xls" else filepath[:-5]
+    filename = __getnamefrompath__(filepath)
     fp = inputfolder + filepath
     df = pd.read_excel(fp)
     df.index = range(len(df))
@@ -165,7 +173,30 @@ def merge_to_meta(df,metdata="meta_data\\meta.xlsx",how='left',
 
 def find_duplicated(xlspath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
                     key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
-   
+    """
+    return a DataFrame showing data in conflict with metadata.
+
+    str -> pandas.core.frame.DataFrame
+
+    arguments:
+        xlspath : string
+            -- the path of the xls(x) file.
+        metdata : string
+            -- the path of meta data, default "meta_data\\meta.xlsx".
+        inputfolder : string
+           -- the directory of lpath, default "input\\".
+              please set it to "" if lpath has drive letter.
+        key : list of string(s)
+            -- the shared key of the file(s), which will appear in the merged
+                    excel file, default ['学号','姓名'].
+        keyformat : list of string(s)
+            -- the type of key, default ['int','str'].
+                options:
+                    'str', 'int', 'float'
+        subkey : list of string(s)
+            -- the shared subkey of the file(s), which will not appear in the
+            merged excel file, default [].
+    """
     mt = pd.read_excel(metdata,names=key+subkey)
     for i,j in zip(key,keyformat):
         mt[i] = mt[i].apply(lambda x:__stdiz__(x,j))
@@ -177,7 +208,7 @@ def find_duplicated(xlspath,metdata="meta_data\\meta.xlsx",inputfolder="input\\"
     l = list()
     em = DataFrame(columns=key)
     em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer')
-    return em.sort_values(by=key).set_index(key).fillna(xlspath)
+    return em.sort_values(by=key).set_index(key).fillna(__getnamefrompath__(xlspath))
     
         
 
