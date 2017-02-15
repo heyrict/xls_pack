@@ -63,7 +63,7 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
     df = pd.read_excel(fp)
     df.index = range(len(df))
 
-
+    
 
     for k in key+subkey:
         if k not in df.columns:
@@ -71,17 +71,24 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
             df = pd.read_excel(fp,names=l)
             df[filename] = df[filename].fillna(1)
             break
-    if len(df.columns) == len(key+subkey):
+    if len(df.columns) <= len(key+subkey):
         df = DataFrame(df,columns=list(df.columns)+[filename])
     for i,j in zip(key,keyformat):
         df[i] = df[i].apply(lambda x:__stdiz__(x,j))
 
+    t = df.columns.map(lambda x:True if(len(x)>7 and x[:8]=="Unnamed:")
+                       else False)
+
+    if t.any():
+        loc = df.columns.get_loc(key[-1])+1
+        for i in df.columns[loc:]:
+            del df[i]
+        df[filename] = 1
+
+    
     for i in subkey:
         del df[i]
-    for i in df.columns[df.columns.map(lambda x:True if (len(x)>7 and x[:8]=="Unnamed:") else False)]:
-        del df[i]
-    j = df.columns[df.columns.get_loc(key[-1])+1]
-    df[j] = df[j].fillna(1)
+        
     return df
 
 
@@ -136,7 +143,7 @@ def to_excel(df,filename="output.xls",key=["姓名","学号"]):
         out = out + '.xls'
     if not os.path.exists("output\\"):
         os.mkdir("output\\")
-    df.sort_index(by=key).to_excel("output\\"+out,index=False)
+    df.sort_values(by=key).to_excel("output\\"+out,index=False)
     return
 
 
