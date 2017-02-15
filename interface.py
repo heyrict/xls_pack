@@ -28,7 +28,19 @@ def main2(l):
 
 def main():
     l = fetchfiles()
-    main1(l)
+    allclr = True
+    for xls in l:
+        k = find_duplicated(xls)
+        if(len(k)>0):
+            if(allclr): 
+                print("There are some duplicated data below:\n")
+                allclr = False
+            print(k,'\n')
+    if(allclr):
+        print("No duplicated data found.")
+    else:
+        print("Continue?(press q to quit):",end="")
+        if(str(input())=='q'): return
     main2(l)
     os.system("pause")
 
