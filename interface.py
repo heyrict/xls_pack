@@ -29,13 +29,13 @@ def main2(l):
 def main():
     l = fetchfiles()
     allclr = True
-    for xls in l:
-        k = find_duplicated(xls)
-        if(len(k)>0):
-            if(allclr): 
-                print("There are some duplicated data below:\n")
-                allclr = False
-            print(k,'\n')
+    
+    k = find_duplicated(l)
+    if(len(k)>0):
+        if(allclr): 
+            print("There are some duplicated data below:\n")
+            allclr = False
+        print(k,'\n')
     if(allclr):
         print("No duplicated data found.")
     else:

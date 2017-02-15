@@ -171,7 +171,7 @@ def merge_to_meta(df,metdata="meta_data\\meta.xlsx",how='left',
     return pd.merge(mt,df,how=how,on=key)
 
 
-def find_duplicated(xlspath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
+def find_duplicated(lpath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
                     key=['学号','姓名'],keyformat=['int','str'],subkey=[]):
     """
     return a DataFrame showing data in conflict with metadata.
@@ -179,8 +179,8 @@ def find_duplicated(xlspath,metdata="meta_data\\meta.xlsx",inputfolder="input\\"
     str -> pandas.core.frame.DataFrame
 
     arguments:
-        xlspath : string
-            -- the path of the xls(x) file.
+        lpath : string, list of string
+            -- the path(s) of the xls(x) file.
         metdata : string
             -- the path of meta data, default "meta_data\\meta.xlsx".
         inputfolder : string
@@ -197,18 +197,22 @@ def find_duplicated(xlspath,metdata="meta_data\\meta.xlsx",inputfolder="input\\"
             -- the shared subkey of the file(s), which will not appear in the
             merged excel file, default [].
     """
+    if type(lpath)==str:
+        lpath = [lpath]
     mt = pd.read_excel(metdata,names=key+subkey)
     for i,j in zip(key,keyformat):
         mt[i] = mt[i].apply(lambda x:__stdiz__(x,j))
     mt['来源']='meta'
-
-    df = __read__(xlspath,inputfolder=inputfolder,key=key,keyformat=keyformat,
-                    subkey=subkey)[key]
-    t = pd.merge(mt,df,how='outer')
+    
     l = list()
     em = DataFrame(columns=key)
-    em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer')
-    return em.sort_values(by=key).set_index(key).fillna(__getnamefrompath__(xlspath))
+
+    for xlspath in lpath:
+        df = __read__(xlspath,inputfolder=inputfolder,key=key,keyformat=keyformat,
+                        subkey=subkey)[key]
+        t = pd.merge(mt,df,how='outer')
+        em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer').fillna(__getnamefrompath__(xlspath))
+    return em.sort_values(by=key).set_index(key)
     
         
 
