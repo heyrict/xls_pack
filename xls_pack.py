@@ -73,12 +73,15 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
             break
     if len(df.columns) == len(key+subkey):
         df = DataFrame(df,columns=list(df.columns)+[filename])
-        df[filename] = df[filename].fillna(1)
     for i,j in zip(key,keyformat):
         df[i] = df[i].apply(lambda x:__stdiz__(x,j))
 
     for i in subkey:
         del df[i]
+    for i in df.columns[df.columns.map(lambda x:True if (len(x)>7 and x[:8]=="Unnamed:") else False)]:
+        del df[i]
+    j = df.columns[df.columns.get_loc(key[-1])+1]
+    df[j] = df[j].fillna(1)
     return df
 
 
