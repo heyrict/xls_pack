@@ -80,10 +80,18 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
                        else False)
 
     if t.any():
-        loc = df.columns.get_loc(key[-1])+1
-        for i in df.columns[loc:]:
+        tlist = list()
+        for i in key+subkey:
+            tlist.append(df.columns.get_loc(i))
+        if max(tlist)<len(df.columns)-1 and t[max(tlist)+1]:
+            for i in df.columns[max(tlist)+1:]:
+                del df[i]
+            df[filename] = 1
+        for i in df.columns[df.columns.map(lambda x:True
+                                           if(len(x)>7 and x[:8]=="Unnamed:")
+                                           else False)]:
             del df[i]
-        df[filename] = 1
+        
 
     
     for i in subkey:
