@@ -1,5 +1,5 @@
 import sys, os
-##os.system("pyuic5 xls_pack.ui -o ui_resource.py")
+#os.system("pyuic5 xls_pack.ui -o ui_resource.py")
 from ui_resource import Ui_Dialog
 from xls_pack import *
 
@@ -11,18 +11,9 @@ class maindialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(maindialog,self).__init__(parent)
         
-        if not os.path.exists("output\\"):
-            os.mkdir("output\\")
-        if not os.path.exists("input\\"):
-            os.mkdir("input\\")
-            open("input\\PLACE INPUT FILES HERE","w").close()
-        if not os.path.exists("meta_data\\"):
-            os.mkdir("meta_data\\")
-            open("meta_data\\meta.xlsx","w").close()
-
+        self.output=""
         self.major = Ui_Dialog()
         self.major.setupUi(self)
-        self.output = ">>>Now initializing... Please wait...\n"
         self.major.plainTextEdit.setPlainText(self.output)
         self.scolbar = self.major.plainTextEdit.verticalScrollBar()
 
@@ -30,6 +21,15 @@ class maindialog(QtWidgets.QDialog):
         self.major.lineEdit_tk.setText("int str")
         self.major.lineEdit_uk.setText("")
         self.major.lineEdit_out.setText("output.xls")
+        self.major.checkBox_match.setChecked(True)
+        
+        if not os.path.exists("input\\"):
+            self.printtoobj("Now initializing... Please wait...\n")
+            os.mkdir("input\\")
+            open("input\\PLACE INPUT FILES HERE","w").close()
+        if not os.path.exists("meta_data\\"):
+            os.mkdir("meta_data\\")
+            open("meta_data\\meta.xlsx","w").close()
 
         self.fetchfiles()
         
@@ -60,13 +60,14 @@ class maindialog(QtWidgets.QDialog):
         self.keyformat = self.major.lineEdit_tk.text().split()
         self.subkey = self.major.lineEdit_uk.text().split()
         self.out = self.major.lineEdit_out.text()
+        self.match = self.major.checkBox_match.isChecked()
 
         sender = self.sender()
         if sender.objectName() == "buttonmerge":
             self.printtoobj("Now merging files with keys of %s"%(", ".join(self.key)))
             self.printtoobj("please wait ...")
             total_process(self.l,key=self.key,keyformat=self.keyformat,
-                          subkey=self.subkey,output=self.out)
+                          subkey=self.subkey,output=self.out,match=self.match)
             self.printtoobj("Success!")
         elif sender.objectName() == "buttondup":
             self.dupcheck()
