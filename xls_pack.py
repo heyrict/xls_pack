@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame, Series
 
-def __stdiz__(stno,typ):
+def _stdiz(stno,typ):
     """
     return a normalized data with a special type.
     """
@@ -28,7 +28,7 @@ def __stdiz__(stno,typ):
     return stno
 
 
-def __getnamefrompath__(path):
+def _getnamefrompath(path):
     """
     get the name of .xls(x) files.
     """
@@ -36,7 +36,7 @@ def __getnamefrompath__(path):
     return path[:-4] if path[-4:]==".xls" else path[:-5]
 
 
-def __read__(filepath,inputfolder="",key=['学号','姓名'],
+def _read(filepath,inputfolder="",key=['学号','姓名'],
              keyformat=['int','str'],subkey=[]):
     """
     read a xls(x) file in filepath and return a pandas.DataFrame object
@@ -58,7 +58,7 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default []
     """
-    filename = __getnamefrompath__(filepath)
+    filename = _getnamefrompath(filepath)
     fp = inputfolder + filepath
     df = pd.read_excel(fp)
     df.index = range(len(df))
@@ -72,9 +72,9 @@ def __read__(filepath,inputfolder="",key=['学号','姓名'],
             df[filename] = df[filename].fillna(1)
             break
     if len(df.columns) <= len(key+subkey):
-        df = DataFrame(df,columns=list(df.columns)+[filename])
+        df = DataFrame(df,columns=list(df.columns)+[filename]).fillna(1)
     for i,j in zip(key,keyformat):
-        df[i] = df[i].apply(lambda x:__stdiz__(x,j))
+        df[i] = df[i].apply(lambda x:_stdiz(x,j))
 
     t = df.columns.map(lambda x:True if(len(x)>7 and x[:8]=="Unnamed:")
                        else False)
@@ -126,9 +126,9 @@ def join_list(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
     """
     
     
-    d = __read__(str(lpath[0]),inputfolder=str(inputfolder),key=key,subkey=subkey)
+    d = _read(str(lpath[0]),inputfolder=str(inputfolder),key=key,subkey=subkey)
     for i in lpath[1:]:
-        d = pd.merge(d,__read__(str(i),inputfolder=str(inputfolder),key=key,keyformat=keyformat,
+        d = pd.merge(d,_read(str(i),inputfolder=str(inputfolder),key=key,keyformat=keyformat,
                                 subkey=subkey),on=key,how='outer')
     d.sort_index(axis=1)
     return d
@@ -183,7 +183,7 @@ def merge_to_meta(df,metdata="meta_data\\meta.xlsx",how='left',
     """
     mt = pd.read_excel(metdata,names=key+subkey)
     for i,j in zip(key,keyformat):
-        mt[i] = mt[i].apply(lambda x:__stdiz__(x,j))
+        mt[i] = mt[i].apply(lambda x:_stdiz(x,j))
     for i in subkey:
         del mt[i]
     return pd.merge(mt,df,how=how,on=key)
@@ -219,17 +219,17 @@ def find_duplicated(lpath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
         lpath = [lpath]
     mt = pd.read_excel(metdata,names=key+subkey)
     for i,j in zip(key,keyformat):
-        mt[i] = mt[i].apply(lambda x:__stdiz__(x,j))
+        mt[i] = mt[i].apply(lambda x:_stdiz(x,j))
     mt['来源']='meta'
     
     l = list()
     em = DataFrame(columns=key)
 
     for xlspath in lpath:
-        df = __read__(xlspath,inputfolder=inputfolder,key=key,keyformat=keyformat,
+        df = _read(xlspath,inputfolder=inputfolder,key=key,keyformat=keyformat,
                         subkey=subkey)[key]
         t = pd.merge(mt,df,how='outer')
-        em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer').fillna(__getnamefrompath__(xlspath))
+        em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer').fillna(_getnamefrompath(xlspath))
     return em.sort_values(by=key).set_index(key)
     
         
