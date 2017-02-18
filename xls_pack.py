@@ -100,6 +100,21 @@ def _read(filepath,inputfolder="",key=['学号','姓名'],
     return df
 
 
+def _read_meta(metapth="meta_data\\meta.xlsx",key=['学号','姓名'],subkey=[]):
+    
+    if os.path.getsize(metapth) == 0:
+        print(">>>WARNING: METADATA IS EMPTY")
+        return -1
+    mt = pd.read_excel(metapth)
+    if len(mt.columns) < len(key+subkey):
+        print(">>>WARNING: CANNOT MATCH KEYS WITH METADATA")
+        return -2
+    for i in key+subkey:
+        if i not in mt.columns:
+            print(">>>WARNING: CANNOT MATCH KEYS WITH METADATA")
+            return -3
+    return pd.read_excel(metapth)
+    
 def join_list(lpath,key=['学号','姓名'],keyformat=['int','str'],subkey=[],
               inputfolder="input\\"):
     """
@@ -181,7 +196,9 @@ def merge_to_meta(df,metdata="meta_data\\meta.xlsx",how='left',
            -- the shared subkey of the file(s), which will not appear in the
            merged excel file, default [].
     """
-    mt = pd.read_excel(metdata,names=key+subkey)
+    mt = _read_meta(metdata)
+    if type(mt) != pd.DataFrame:
+        return df
     for i,j in zip(key,keyformat):
         mt[i] = mt[i].apply(lambda x:_stdiz(x,j))
     for i in subkey:
@@ -217,7 +234,10 @@ def find_duplicated(lpath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
     """
     if type(lpath)==str:
         lpath = [lpath]
-    mt = pd.read_excel(metdata,names=key+subkey)
+    mt = _read_meta(metdata,key,subkey)
+    if type(mt) != pd.DataFrame:
+        return
+
     for i,j in zip(key,keyformat):
         mt[i] = mt[i].apply(lambda x:_stdiz(x,j))
     mt['来源']='meta'
