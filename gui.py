@@ -4,6 +4,7 @@ from ui_resource import Ui_Dialog
 from xls_pack import *
 
 import PyQt5
+import pandas as pd
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 
@@ -24,12 +25,14 @@ class maindialog(QtWidgets.QDialog):
         self.major.checkBox_match.setChecked(True)
         
         if not os.path.exists("input\\"):
-            self.printtoobj("Now initializing... Please wait...\n")
             os.mkdir("input\\")
             open("input\\PLACE INPUT FILES HERE","w").close()
         if not os.path.exists("meta_data\\"):
             os.mkdir("meta_data\\")
+        if not os.path.exists("meta_data\\meta.xlsx"):
             open("meta_data\\meta.xlsx","w").close()
+        elif os.path.getsize("meta_data\\meta.xlsx") == 0:
+                print("WARNING: METADATA IS EMPTY!")
 
         self.fetchfiles()
         
@@ -39,22 +42,26 @@ class maindialog(QtWidgets.QDialog):
     def dupcheck(self):
         k = find_duplicated(self.l,key=self.key,keyformat=self.keyformat,
                             subkey=self.subkey)
-        if(len(k)>0):
-            self.printtoobj("There are some duplicated data below:")
-            self.printtoobj(k,hint="",end="\n\n")
+        if type(k)==pd.DataFrame:
+            if len(k)!=0:
+                self.printtoobj("There are some duplicated data below:")
+                self.printtoobj(k,hint="",end="\n\n")
+            else:
+                self.printtoobj("No duplicated data found.")
         else:
-            self.printtoobj("No duplicated data found.")
+            self.printtoobj("WARNING: CANNOT MATCH EXCEL FILES WITH METADATA")
+        self.printtoobj("",hint="")
 
     def clicked(self):
         if len(self.l)==0 :
-            self.printtoobj("ERROR: NO EXCEL FILES FOUND IN \"input\\\"")
-            return
+            self.fetchfiles()
+            if len(self.l)==0:
+                self.printtoobj("ERROR: NO EXCEL FILES FOUND IN \"input\\\"")
+                return
         if not os.path.exists("meta_data\\meta.xlsx"):
-            self.printtoobj("ERROR: FILE\"meta_data\\meta.xlsx\" NOT FOUND..")
-            return
+            self.printtoobj("WARNING: FILE\"meta_data\\meta.xlsx\" NOT FOUND")
         if os.path.getsize("meta_data\\meta.xlsx") == 0:
-            self.printtoobj("ERROR: META DATA NOT FOUND. REPLACE \"meta_data\\meta.xlsx\" WITH META DATA FIRST")
-            return
+            self.printtoobj("WARNING: META DATA IS EMPTY")
 
         self.key = self.major.lineEdit_k.text().split()
         self.keyformat = self.major.lineEdit_tk.text().split()
@@ -69,6 +76,7 @@ class maindialog(QtWidgets.QDialog):
             total_process(self.l,key=self.key,keyformat=self.keyformat,
                           subkey=self.subkey,output=self.out,match=self.match)
             self.printtoobj("Success!")
+            self.printtoobj("",hint="")
         elif sender.objectName() == "buttondup":
             self.dupcheck()
 
@@ -92,7 +100,8 @@ class maindialog(QtWidgets.QDialog):
         self.printtoobj("The files to be merged are below:")
         inputlist = list(self.l)
         for i in range(len(inputlist)):
-            self.printtoobj(i+1," ",inputlist[i],end="\n\n",hint="")
+            self.printtoobj(i+1," ",inputlist[i],hint="")
+        self.printtoobj("",hint="")
 
 
 if __name__ == "__main__":
