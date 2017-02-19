@@ -38,12 +38,10 @@ def main():
     if first_use:
         print(">>>Please put excel files that you want to merge in \"\\input\" folder")
         os.system("pause")
-    else:
-        if os.path.getsize("meta_data\\meta.xlsx") == 0:
+    elif os.path.getsize("meta_data\\meta.xlsx") == 0:
             print("WARNING: METADATA IS EMPTY!")
 
     l = fetchfiles()
-    allclr = True
 
     if len(l)==0 :
         print(">>>ERROR: NO EXCEL FILES FOUND IN \"\\input\"")
@@ -58,11 +56,10 @@ def main():
 
     k = find_duplicated(l)
     if(type(k)==pd.DataFrame):
-        if(allclr): 
-            print(">>>There are some duplicated data below:")
-            allclr = False
+        print(">>>There are some duplicated data below:")
+        allclr = False
         print(k,'\n')
-    if(allclr):
+    else:
         print(">>>No duplicated data found.")
     print(">>>Continue?(y/n):",end="")
     while(1):
