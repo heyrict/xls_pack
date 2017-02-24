@@ -1,4 +1,4 @@
-import sys, os
+﻿import sys, os
 #os.system("pyuic5 xls_pack.ui -o ui_resource.py")
 from ui_resource import Ui_Dialog
 from xls_pack import *
@@ -12,7 +12,9 @@ class maindialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(maindialog,self).__init__(parent)
         
-        self.output=""
+        self.output="-"*50+"\n\n"+"A program designed to find duplicated data and merge data in\n"
+        self.output += "several excel files.\n\n"+"More details in Github: http://github.com/heyrict/xls_pack\n"
+        self.output += "\n"+"-"*50 + "\n\n\n"
         self.major = Ui_Dialog()
         self.major.setupUi(self)
         self.major.plainTextEdit.setPlainText(self.output)
