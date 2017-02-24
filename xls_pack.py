@@ -248,8 +248,9 @@ def find_duplicated(lpath,metdata="meta_data\\meta.xlsx",inputfolder="input\\",
     for xlspath in lpath:
         df = _read(xlspath,inputfolder=inputfolder,key=key,keyformat=keyformat,
                         subkey=subkey)[key]
-        t = pd.merge(mt,df,how='outer')
-        em = pd.merge(em,t[t[key[0]].duplicated(keep=False)],how='outer').fillna(_getnamefrompath(xlspath))
+        df['来源']=_getnamefrompath(xlspath)
+        t = pd.merge(mt[key+['来源']],df[key+['来源']],how='outer')
+        em = pd.merge(em,t[t.duplicated(subset=key[0],keep=False) & ~t.duplicated(subset=key,keep=False)],how='outer')
     return em.sort_values(by=key).set_index(key)
     
         
